@@ -3,14 +3,49 @@ import postgraphile, { type PostGraphileOptions } from "postgraphile";
 import { mutationHandler } from './plugins/mutationHandler';
 import { queryHandler } from './plugins/queryHandler';
 
+/**
+ * @property {bool} enabled - asdasd
+ */
 export type postgraphileOptions = {
+
+    /**
+     * Flag to enable or disable PostGraphile.
+     */
     enabled: true | false,
+
+    /**
+     * Configuration options for PostGraphile.
+     */
     options: PostGraphileOptions,
+
+    /**
+     * The port number on which the server will run.
+     */
     port: number,
+
+    /**
+     * The schema to be used by PostGraphile.
+     */
     schema: string,
+
+    /**
+     * The database connection URL.
+     */
     databaseUrl: string,
+
+    /**
+     * Flag to load a custom mutation handler.
+     */
     loadCustomMutationHandler: true | false,
+
+    /**
+     * Flag to load a custom query handler.
+     */
     loadCustomQueryHandler: true | false,
+
+    /**
+     * Optional flag to enable or disable metrics.
+     */
     metrics?: true | false
 };
 
@@ -32,16 +67,21 @@ export const runPostgrahileServer = async (args: postgraphileOptions) => {
         options.appendPlugins.push(queryHandler);
     }
 
-    const postgraphileServer = postgraphile(args.databaseUrl, args.schema, args.options);
+    const postgraphileServer = postgraphile(args.databaseUrl, args.schema, options);
 
     const server = createServer(postgraphileServer)
         .listen(port, () => {
+
             const address = server.address();
-            if (typeof address !== 'string') {
-                const href = `http://localhost:${address.port}${options.graphiqlRoute || '/graphiql'}`;
-                console.log(`🚀 PostGraphiQL available at ${href}`);
-            } else {
-                console.log(`🚀 PostGraphile listening on ${address}`);
+            const baseAddress = address.address === '::' ? 'localhost' : address.address;
+            const baseUrl = `http://${baseAddress}:${address.port}`;
+
+            console.log(`🚀 GraphQL server available at ${baseUrl}${options.graphqlRoute || '/graphql'}`);
+
+            if (options.graphiql) {
+                const href = `${baseUrl}${options.graphiqlRoute || '/graphiql'}`;
+                console.log(`🚀 GraphiQL available at ${href}`);
             }
+
         });
 }

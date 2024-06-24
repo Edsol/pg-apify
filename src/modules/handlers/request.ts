@@ -31,7 +31,7 @@ class RequestHandler {
         this.middlewares.push(middleware);
     }
 
-    useForMethod(method, callback) {
+    registerHandler(method, callback) {
         const key = method.toUpperCase();
         if (!this.methodMiddlewares[key]) {
             this.methodMiddlewares[key] = [];
@@ -39,7 +39,7 @@ class RequestHandler {
         this.methodMiddlewares[key].push(callback);
     }
 
-    useForMethodAndController(method, controller, callback) {
+    registerRouteHandler(method, controller, callback) {
         const key = `${method.toUpperCase()}:${controller}`;
         if (!this.controllerMiddlewares[key]) {
             this.controllerMiddlewares[key] = [];

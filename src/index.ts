@@ -16,7 +16,7 @@ const databaseConnection = new DatabaseConnection();
  * @param {postgraphileOptions} postgraphileOptions
  * @param {postgrestOptions} postgrestOptions
  */
-const runServers = async (postgraphileOptions: postgraphileOptions, postgrestOptions: postgrestOptions) => {
+const pgApifyServer = async (postgraphileOptions: postgraphileOptions, postgrestOptions: postgrestOptions) => {
     runPostgrahile(postgraphileOptions);
     runPostgrest(postgrestOptions);
 }
@@ -59,4 +59,4 @@ function runPostgrest(postgrestOptions: postgrestOptions) {
     });
 }
 
-export { runServers, databaseConnection, requestHandler, type postgraphileOptions, type postgrestOptions };
+export { pgApifyServer, databaseConnection, requestHandler, type postgraphileOptions, type postgrestOptions };

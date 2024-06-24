@@ -21,11 +21,31 @@ proxyServer.use(express.json());
 proxyServer.listen(PROXY_PORT, () => { });
 
 let verboseMode = false;
+
 export type postgrestOptions = {
+    /**
+     * Flag to enable or disable postgREST.
+     */
     enabled: true | false;
+
+    /**
+     * Flag to enable or disable documentation
+     */
     enableDocs?: boolean,
+
+    /**
+     * Flag to enable or disable verbose mode to show logs 
+     */
     verboseMode?: boolean,
+
+    /**
+     * The port number on which the server will run.
+     */
     port: number | string,
+
+    /**
+     * Optional flag to enable or disable metrics.
+     */
     metrics?: true | false
 }
 
@@ -34,7 +54,7 @@ export type postgrestOptions = {
 export const runPostgrestServer = async (options: postgrestOptions) => {
     verboseMode = options.verboseMode || false;
 
-    if (options.enableDocs) {
+    if (options.enableDocs || false) {
         docs();
     }
     subscribeHandlers();
@@ -47,7 +67,7 @@ export const runPostgrestServer = async (options: postgrestOptions) => {
     if (!running) {
         startPostgrest(options.verboseMode);
 
-        console.log(`API is running at ${address}`)
+        console.log(`🔥 API is running at ${address}`)
     } else {
         spawn("killall", ["-SIGUSR2", "postgrest"]);
         console.log(`🔥 API is already running, reload it! ${address}`);

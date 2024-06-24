@@ -3,7 +3,7 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "dev": "bun --env-file=./.env --watch ./test/test.ts",
+    "dev": "bun --env-file=./.env --watch ./example/example.ts",
     "build": "bun build ./src/index.ts --outfile=dist/app",
     "build:compile": "bun build --compile ./src/index.ts --outfile=dist/app",
     "prod": "bun run dist/app"
