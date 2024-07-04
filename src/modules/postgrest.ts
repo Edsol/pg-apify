@@ -124,7 +124,7 @@ const initProxy = () => {
 }
 
 const docs = () => {
-    proxyServer.use('/docs', (req, res) => {
+    proxyServer.use('/docs', (req: Request, res: Response) => {
         res.sendFile(path.join(__dirname, '.', 'docs.html'));
     });
     console.log(`📖 API docs is running at http://localhost:${PROXY_PORT}/docs`);

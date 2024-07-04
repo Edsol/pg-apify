@@ -1,12 +1,16 @@
 {
   "name": "pg-apify",
-  "module": "index.ts",
+  "version": "1.0.0",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "type": "module",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "bun --env-file=./.env --watch ./example/example.ts",
-    "build": "bun build ./src/index.ts --target=node --outfile=dist/aa",
-    "build:compile": "bun build --compile ./src/index.ts --outfile=dist/app",
-    "prod": "bun run dist/app"
+    "build": "tsc"
   },
   "devDependencies": {
     "@graphile-contrib/pg-simplify-inflector": "^6.1.0",
@@ -22,7 +26,7 @@
     "postgraphile-plugin-connection-filter": "^2.3.0"
   },
   "peerDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.5.3"
   },
   "resolutions": {
     "graphql": "15.8.0"
