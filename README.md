@@ -3,7 +3,7 @@
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
 ![openapi initiative](https://img.shields.io/badge/openapiinitiative-%23000000.svg?style=for-the-badge&logo=openapiinitiative&logoColor=white)
 
-# PG-Apify
+# pg-apify
 
 Effortlessly transform your PostgreSQL database into a powerful REST and GraphQL API server with zero coding required
 
@@ -107,3 +107,9 @@ In addition to GraphQL, pg-apify also utilizes [PostgREST](https://github.com/Po
 ### Scalar
 
 Using [scalar](https://github.com/scalar/scalar) to generate interactive API documentation from OpenAPI/Swagger documents.
+
+
+## Do you want to support my work? Buy me an espresso coffee (I'm Italian)
+
+<a href="https://www.buymeacoffee.com/edsol" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+
