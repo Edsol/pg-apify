@@ -1,8 +1,8 @@
-import { Client, ConnectionConfig } from 'pg';
+import { Client, type ConnectionConfig, type Client as ClientType } from 'pg';
 
 export default class DatabaseConnection {
-    client;
-    options: ConnectionConfig;
+    client?: ClientType = undefined;
+    options: ConnectionConfig = {};
 
     public set(options: ConnectionConfig) {
         this.options = options;

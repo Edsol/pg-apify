@@ -1,11 +1,20 @@
+import { type Request, type Response, type NextFunction } from 'express';
 
-type resultResponse = {
+export type resultResponse = {
     success: true | false,
     status: number,
     message: string,
     data: unknown
 }
-export const responseHandler = (result: resultResponse, context) => {
+
+export type responseContext = {
+    req: Request,
+    res: Response,
+    next: NextFunction,
+    graphql?: boolean
+}
+
+export const responseHandler = (result: resultResponse, context: responseContext) => {
     if (context.res && typeof context.res.send === 'function') {
         // Caso Express
         if (result.success === false) {

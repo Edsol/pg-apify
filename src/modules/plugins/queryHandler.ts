@@ -1,14 +1,27 @@
+import type { SchemaBuilder, Build, Context } from "postgraphile";
+
 const { requestHandler } = require("../handlers/request");
 const { responseHandler } = require("../handlers/response");
-export const queryHandler = (builder) => {
-    builder.hook('GraphQLObjectType:fields', (fields, build, context) => {
+
+interface FieldType {
+    resolve: (parent: object, args: object, context: { graphql: boolean }, info: object) => any;
+    // add other possible properties of field objects here
+}
+
+interface fieldsType {
+    [key: string]: object;
+}
+
+export const queryHandler = (builder: any) => {
+    const callback = (fields: FieldType, build: Build, context: Context<object>) => {
+
         const { scope: { isRootQuery }, Self } = context;
 
         if (!isRootQuery) {
             return fields;
         }
 
-        const newFields = {};
+        const newFields: fieldsType = {};
         const methodsAndControllers = requestHandler.getMethodsAndControllersHavingCallbacks();
 
         for (const [fieldName, field] of Object.entries(fields)) {
@@ -18,7 +31,7 @@ export const queryHandler = (builder) => {
 
             newFields[fieldName] = {
                 ...field,
-                resolve: async (parent, args, context, info) => {
+                resolve: async (parent: object, args: object, context: { graphql: boolean }, info: object) => {
                     context.graphql = true;
 
                     if (controller) {
@@ -33,5 +46,7 @@ export const queryHandler = (builder) => {
         }
 
         return newFields;
-    });
+    };
+
+    builder.hook('GraphQLObjectType:fields', callback);
 };

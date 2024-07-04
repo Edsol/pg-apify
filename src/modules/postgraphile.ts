@@ -1,4 +1,5 @@
 import { createServer } from 'http';
+import { type AddressInfo } from 'net';
 import postgraphile, { type PostGraphileOptions } from "postgraphile";
 import { mutationHandler } from './plugins/mutationHandler';
 import { queryHandler } from './plugins/queryHandler';
@@ -60,21 +61,29 @@ export const runPostgrahileServer = async (args: postgraphileOptions) => {
         port = 5000;
     }
 
-    if (args.loadCustomMutationHandler || false) {
-        options.appendPlugins.push(mutationHandler);
+    if (options.appendPlugins !== undefined) {
+        if (args.loadCustomMutationHandler || false) {
+            options.appendPlugins.push(mutationHandler);
+        }
+        if (args.loadCustomQueryHandler || false) {
+            options.appendPlugins.push(queryHandler);
+        }
     }
-    if (args.loadCustomQueryHandler || false) {
-        options.appendPlugins.push(queryHandler);
-    }
+
 
     const postgraphileServer = postgraphile(args.databaseUrl, args.schema, options);
 
     const server = createServer(postgraphileServer)
         .listen(port, () => {
 
-            const address = server.address();
-            const baseAddress = address.address === '::' ? 'localhost' : address.address;
-            const baseUrl = `http://${baseAddress}:${address.port}`;
+            const address: AddressInfo | string | null = server.address();
+            let baseAddress = 'localhost';
+
+            if (typeof address === "object" && address !== null) {
+                baseAddress = address.address === '::' ? 'localhost' : address.address;
+            }
+
+            const baseUrl = `http://${baseAddress}:${port}`;
 
             console.log(`🚀 GraphQL server available at ${baseUrl}${options.graphqlRoute || '/graphql'}`);
 

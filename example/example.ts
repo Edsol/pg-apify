@@ -1,13 +1,20 @@
-import { pgApifyServer, databaseConnection, requestHandler, postgraphileOptions, postgrestOptions } from '../src/index';
+import { pgApifyServer, databaseConnection, requestHandler, type postgraphileOptions, type postgrestOptions } from '../src/index';
 import { dev as options } from "./postgraphileOptions";
 
-// requestHandler.registerHandler('GET', async (params, context, info) => {
+// requestHandler.use(async (params, context, info) => {
 //     return {
 //         success: false,
 //         status: 303,
-//         message: 'Callback error',
+//         message: 'Callback asd',
 //     };
 // });
+requestHandler.registerHandler('GET', async (params, context, info) => {
+    return {
+        success: false,
+        status: 303,
+        message: 'Callback error',
+    };
+});
 
 // requestHandler.registerRouteHandler('PUT', 'type', async (params, context, info) => {
 //     console.log("Handling GET request:", params.method);
@@ -28,13 +35,13 @@ import { dev as options } from "./postgraphileOptions";
 //     };
 // });
 
-requestHandler.registerRouteHandler('GET', 'type', async (params, context, info) => {
-    return {
-        success: false,
-        status: 303,
-        message: 'Callback error',
-    };
-});
+// requestHandler.registerRouteHandler('GET', 'type', async (params, context, info) => {
+//     return {
+//         success: false,
+//         status: 303,
+//         message: 'Callback error',
+//     };
+// });
 
 const postgraphileServerOptions: postgraphileOptions = {
     enabled: true,
@@ -50,7 +57,7 @@ const postgraphileServerOptions: postgraphileOptions = {
 const postgrestServerOptions: postgrestOptions = {
     enabled: true,
     enableDocs: true,
-    verboseMode: true,
+    verboseMode: false,
     port: process.env.PROXY_SERVER_PORT || 3000,
     metrics: false
 };

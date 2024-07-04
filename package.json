@@ -4,13 +4,14 @@
   "type": "module",
   "scripts": {
     "dev": "bun --env-file=./.env --watch ./example/example.ts",
-    "build": "bun build ./src/index.ts --outfile=dist/app",
+    "build": "bun build ./src/index.ts --target=node --outfile=dist/aa",
     "build:compile": "bun build --compile ./src/index.ts --outfile=dist/app",
     "prod": "bun run dist/app"
   },
   "devDependencies": {
     "@graphile-contrib/pg-simplify-inflector": "^6.1.0",
     "@types/bun": "latest",
+    "@types/express": "^4.17.21",
     "@types/graphql": "^14.5.0",
     "@types/pg": "^8.11.6",
     "dotenv-cli": "^7.4.2",

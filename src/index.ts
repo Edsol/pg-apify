@@ -1,6 +1,6 @@
 import DatabaseConnection from './modules/databaseConnection';
-import { postgraphileOptions, runPostgrahileServer } from './modules/postgraphile';
-import { runPostgrestServer, postgrestOptions } from './modules/postgrest';
+import { runPostgrahileServer, type postgraphileOptions } from './modules/postgraphile';
+import { runPostgrestServer, type postgrestOptions } from './modules/postgrest';
 
 import { requestHandler } from './modules/handlers/request';
 

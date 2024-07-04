@@ -2,13 +2,13 @@ import { spawn, exec, ChildProcess } from 'child_process';
 import * as util from 'util';
 const execPromise = util.promisify(exec);
 
-import express, { Request, Response, NextFunction } from 'express';
+import express, { type Request, type Response, type NextFunction } from 'express';
 import path from 'path';
 
 // https://github.com/chimurai/http-proxy-middleware#readme
 import { createProxyMiddleware } from 'http-proxy-middleware';
-import { requestHandler, methodHandlers } from './handlers/request';
-import { responseHandler } from './handlers/response';
+import { requestHandler, methodHandlers, type HttpMethod } from './handlers/request';
+import { responseHandler, type responseContext } from './handlers/response';
 
 
 const PROXY_PORT = process.env.PROXY_SERVER_PORT || 3000;
@@ -49,6 +49,10 @@ export type postgrestOptions = {
     metrics?: true | false
 }
 
+interface stringKeyType {
+    [key: string]: string;
+}
+
 
 // Funzione per avviare PostgREST solo se non è già in esecuzione
 export const runPostgrestServer = async (options: postgrestOptions) => {
@@ -79,15 +83,17 @@ const subscribeHandlers = () => {
     const methodsAndControllers = requestHandler.getMethodsAndControllersHavingCallbacks();
 
     for (const method in methodsAndControllers) {
-        if (!methodHandlers[method]) {
+        if (!methodHandlers[method as HttpMethod]) {
             continue;
         }
+        const methodLowerized: HttpMethod = <HttpMethod>method.toLowerCase();
+
 
         if (methodsAndControllers[method].size === 0) {
-            proxyServer[method.toLowerCase()]("/:controller", async (req: Request, res: Response, next: NextFunction) => {
-                const context = { req, res, next };
-                const result = await methodHandlers[method](req, context, null);
-                responseHandler(result, context);
+            proxyServer[methodLowerized]("/:controller", async (req: Request, res: Response, next: NextFunction) => {
+                const context: responseContext = { req, res, next };
+                const result = await methodHandlers[method as HttpMethod](req, context, null);
+                responseHandler(result, context as responseContext);
             });
         }
 
@@ -98,10 +104,10 @@ const subscribeHandlers = () => {
                 console.log(`📌 RestAPI: Registering route for ${method} ${route}`);
             }
 
-            proxyServer[method.toLowerCase()](route, async (req: Request, res: Response, next: NextFunction) => {
+            proxyServer[methodLowerized](route, async (req: Request, res: Response, next: NextFunction) => {
                 const context = { req, res, next };
-                const result = await methodHandlers[method](req, context, null, req.params.controller);
-                responseHandler(result, context);
+                const result = await methodHandlers[method as HttpMethod](req, context, null, req.params.controller);
+                responseHandler(result, context as responseContext);
             });
         }
     }
@@ -129,14 +135,18 @@ const docs = () => {
 const startPostgrest = (verboseMode = false) => {
     postgrestProcess = spawn('postgrest');
 
-    if (verboseMode || false) {
-        postgrestProcess.stdout.on('data', (data: Buffer) => {
-            console.log(`PostgREST stdout: ${data}`);
-        });
+    if ((verboseMode || false)) {
+        if (postgrestProcess.stdout !== null) {
+            postgrestProcess.stdout.on('data', (data: Buffer) => {
+                console.log(`PostgREST stdout: ${data}`);
+            });
+        }
 
-        postgrestProcess.stderr.on('data', (data: Buffer) => {
-            console.error(`PostgREST stderr: ${data}`);
-        });
+        if (postgrestProcess.stderr !== null) {
+            postgrestProcess.stderr.on('data', (data: Buffer) => {
+                console.error(`PostgREST stderr: ${data}`);
+            });
+        }
 
         postgrestProcess.on('close', (code: Buffer) => {
             console.log(`PostgREST process exited with code ${code}`);

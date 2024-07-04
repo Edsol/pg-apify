@@ -1,9 +1,18 @@
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS' | 'HEAD';
+import { type Request, type Response } from 'express';
+
+export type HttpMethod = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'options' | 'head';
+
+interface KeyArrayInterface {
+    [key: string]: Array<unknown>;
+}
+interface KeySetInterface {
+    [key: string]: Set<unknown>;
+}
 
 class RequestHandler {
-    middlewares: CallableFunction[];
-    controllerMiddlewares;
-    methodMiddlewares;
+    middlewares: Array<CallableFunction>;
+    controllerMiddlewares: KeyArrayInterface;
+    methodMiddlewares: KeyArrayInterface;
     methodCallbacks: Record<HttpMethod, CallableFunction[]>;
 
     constructor() {
@@ -11,13 +20,13 @@ class RequestHandler {
         this.controllerMiddlewares = {};
         this.methodMiddlewares = {};
         this.methodCallbacks = {
-            GET: [],
-            POST: [],
-            PUT: [],
-            PATCH: [],
-            DELETE: [],
-            OPTIONS: [],
-            HEAD: [],
+            get: [],
+            post: [],
+            put: [],
+            patch: [],
+            delete: [],
+            options: [],
+            head: [],
         };
     }
 
@@ -27,19 +36,33 @@ class RequestHandler {
      * @param {*} middleware
      * @memberof RequestHandler
      */
-    use(middleware) {
+    use(middleware: CallableFunction) {
         this.middlewares.push(middleware);
     }
 
-    registerHandler(method, callback) {
+    /**
+     *
+     *
+     * @param {string} method
+     * @param {CallableFunction} callback
+     * @memberof RequestHandler
+     */
+    registerHandler(method: string, callback: CallableFunction) {
         const key = method.toUpperCase();
         if (!this.methodMiddlewares[key]) {
             this.methodMiddlewares[key] = [];
         }
         this.methodMiddlewares[key].push(callback);
     }
-
-    registerRouteHandler(method, controller, callback) {
+    /**
+     *
+     *
+     * @param {string} method
+     * @param {string} controller
+     * @param {CallableFunction} callback
+     * @memberof RequestHandler
+     */
+    registerRouteHandler(method: string, controller: string, callback: CallableFunction) {
         const key = `${method.toUpperCase()}:${controller}`;
         if (!this.controllerMiddlewares[key]) {
             this.controllerMiddlewares[key] = [];
@@ -47,8 +70,6 @@ class RequestHandler {
 
         this.controllerMiddlewares[key].push(callback);
     }
-
-
 
     /**
      *
@@ -58,7 +79,7 @@ class RequestHandler {
      * @return {*} 
      * @memberof RequestHandler
      */
-    normalizeParams(reqOrArgs, context) {
+    normalizeParams(reqOrArgs: Request, context: any) {
         if (typeof reqOrArgs === 'object' && reqOrArgs.body !== undefined) {
             // Express case
             return {
@@ -80,11 +101,9 @@ class RequestHandler {
 
     }
 
-    async handleRequest(reqOrArgs, context, info, method, controller) {
+    async handleRequest(reqOrArgs: Request, context: any, info: any, method: string, controller: string): Promise<any> {
         const normalizedParams = this.normalizeParams(reqOrArgs, context);
         let result = { success: true };
-
-        console.log('handleRequest', method, controller);
 
         const methodKey = method.toUpperCase();
         const controllerKey = controller ? `${methodKey}:${controller}` : null;
@@ -96,17 +115,18 @@ class RequestHandler {
         ];
 
         for (const middleware of middlewares) {
-            result = await middleware(normalizedParams, context, info, method);
-            if (result && result.success === false) {
-                return result;
+            if (typeof middleware === 'function') {
+                result = await middleware(normalizedParams, context, info, method);
+                if (result && result.success === false) {
+                    return result;
+                }
             }
+
         }
         return result;
     }
 
-
-    async handleGetRequest(reqOrArgs, context, info, controller) {
-        console.log('handleGetRequest');
+    async handleGetRequest(reqOrArgs: Request, context: any, info: any, controller: string): Promise<any> {
         return this.handleRequest(reqOrArgs, context, info, 'GET', controller);
     }
     /**
@@ -117,7 +137,7 @@ class RequestHandler {
      * @param {*} info
      * @memberof RequestHandler
      */
-    async handlePostRequest(reqOrArgs, context, info, controller) {
+    async handlePostRequest(reqOrArgs: Request, context: any, info: any, controller: string) {
         return await this.handleRequest(reqOrArgs, context, info, 'POST', controller);
     }
 
@@ -129,7 +149,7 @@ class RequestHandler {
      * @param {*} info
      * @memberof RequestHandler
      */
-    async handlePutRequest(reqOrArgs, context, info, controller) {
+    async handlePutRequest(reqOrArgs: Request, context: any, info: any, controller: string) {
         return await this.handleRequest(reqOrArgs, context, info, 'PUT', controller);
     }
 
@@ -142,7 +162,7 @@ class RequestHandler {
      * @param {*} info
      * @memberof RequestHandler
      */
-    async handlePatchRequest(reqOrArgs, context, info, controller) {
+    async handlePatchRequest(reqOrArgs: Request, context: any, info: any, controller: string) {
         return await this.handleRequest(reqOrArgs, context, info, 'PATCH', controller);
     }
     /**
@@ -153,7 +173,7 @@ class RequestHandler {
      * @param {*} info
      * @memberof RequestHandler
      */
-    async handleDeleteRequest(reqOrArgs, context, info, controller) {
+    async handleDeleteRequest(reqOrArgs: Request, context: any, info: any, controller: string) {
         return await this.handleRequest(reqOrArgs, context, info, 'DELETE', controller);
     }
     /**
@@ -165,7 +185,7 @@ class RequestHandler {
      * @return {*} 
      * @memberof RequestHandler
      */
-    async handleOptionsRequest(reqOrArgs, context, info, controllero) {
+    async handleOptionsRequest(reqOrArgs: Request, context: any, info: any, controller: string) {
         return await this.handleRequest(reqOrArgs, context, info, 'OPTIONS', controller);
     }
     /**
@@ -177,21 +197,20 @@ class RequestHandler {
      * @return {*} 
      * @memberof RequestHandler
      */
-    async handleHeadRequest(reqOrArgs, context, info, controller) {
+    async handleHeadRequest(reqOrArgs: Request, context: any, info: any, controller: string) {
         return await this.handleRequest(reqOrArgs, context, info, 'HEAD', controller);
     }
 
 
-    hasCallback(method, controller = null) {
+    hasCallback(method: string, controller = null) {
         const methodKey = method.toUpperCase();
-        const controllerKey = controller ? `${methodKey}:${controller}` : null;
+        const controllerKey = `${methodKey}:${controller}`;
 
-        console.log("hasCallback", method, controller, methodKey, this.methodMiddlewares);
         return !!(this.methodMiddlewares[methodKey] || this.controllerMiddlewares[controllerKey]);
     }
 
     getMethodsAndControllersHavingCallbacks() {
-        const methodsAndControllers = {};
+        const methodsAndControllers: KeySetInterface = {};
 
         // Aggiungi i controller associati alle callback di metodo
         for (const key in this.controllerMiddlewares) {
@@ -215,12 +234,13 @@ class RequestHandler {
 
 export const requestHandler = new RequestHandler();
 
-export const methodHandlers = {
-    GET: requestHandler.handleGetRequest.bind(requestHandler),
-    POST: requestHandler.handlePostRequest.bind(requestHandler),
-    PUT: requestHandler.handlePutRequest.bind(requestHandler),
-    PATCH: requestHandler.handlePatchRequest.bind(requestHandler),
-    DELETE: requestHandler.handleDeleteRequest.bind(requestHandler),
-    OPTIONS: requestHandler.handleOptionsRequest.bind(requestHandler),
-    HEAD: requestHandler.handleHeadRequest.bind(requestHandler),
+// export const methodHandlers: KeyFunctionInterface = {
+export const methodHandlers: Record<HttpMethod, (req: Request, context: any, info: any, controller?: any) => Promise<any>> = {
+    get: requestHandler.handleGetRequest.bind(requestHandler),
+    post: requestHandler.handlePostRequest.bind(requestHandler),
+    put: requestHandler.handlePutRequest.bind(requestHandler),
+    patch: requestHandler.handlePatchRequest.bind(requestHandler),
+    delete: requestHandler.handleDeleteRequest.bind(requestHandler),
+    options: requestHandler.handleOptionsRequest.bind(requestHandler),
+    head: requestHandler.handleHeadRequest.bind(requestHandler),
 };
