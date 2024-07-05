@@ -24,7 +24,7 @@ export const queryHandler = (builder: any) => {
 
         const newFields: fieldsType = {};
         const methodsAndControllers = requestHandler.getMethodsAndControllersHavingCallbacks();
-        console.log('methodsAndControllers', methodsAndControllers);
+
         for (const [fieldName, field] of Object.entries(fields)) {
             const method: HttpMethod = 'get';
             const controllers = methodsAndControllers[method] || new Set();
