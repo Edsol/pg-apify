@@ -60,12 +60,16 @@ a GraphQL server, RestAPI and OpenAPI documentation will be launched
 🔥 API is running at http://localhost:3000
 ```
 
+### note
+
+The `postgraphileOptions` file contains the Postgraphile options ([docs](https://www.graphile.org/postgraphile/usage-library/#recommended-options)), see the [example file](example/postgraphileOptions.ts), copy it or create your own custom configuration file.
+
 ### Request middleware
 
 intercepts all `GET` requests
 
 ```typescript
-requestHandler.registerHandler("GET", async (params, context, info) => {
+requestHandler.registerHandler("get", async (params, context, info) => {
   // your code
 
   return {
@@ -80,8 +84,8 @@ or specific `endpoint`
 
 ```typescript
 requestHandler.registerRouteHandler(
-  "GET",
-  "type",
+  "get",
+  "foo",
   async (params, context, info) => {
     // your code
 
@@ -108,8 +112,6 @@ In addition to GraphQL, pg-apify also utilizes [PostgREST](https://github.com/Po
 
 Using [scalar](https://github.com/scalar/scalar) to generate interactive API documentation from OpenAPI/Swagger documents.
 
-
 ## Do you want to support my work? Buy me an espresso coffee (I'm Italian)
 
 <a href="https://www.buymeacoffee.com/edsol" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
-

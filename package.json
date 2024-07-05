@@ -8,6 +8,9 @@
   "files": [
     "dist"
   ],
+  "repository": {
+    "url": "https://github.com/Edsol/pg-apify"
+  },
   "scripts": {
     "dev": "bun --env-file=./.env --watch ./example/example.ts",
     "build": "tsc"
