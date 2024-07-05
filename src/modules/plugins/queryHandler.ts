@@ -1,4 +1,5 @@
 import type { SchemaBuilder, Build, Context } from "postgraphile";
+import { AllRequestField, type HttpMethod } from "../handlers/request";
 
 const { requestHandler } = require("../handlers/request");
 const { responseHandler } = require("../handlers/response");
@@ -23,11 +24,11 @@ export const queryHandler = (builder: any) => {
 
         const newFields: fieldsType = {};
         const methodsAndControllers = requestHandler.getMethodsAndControllersHavingCallbacks();
-
+        console.log('methodsAndControllers', methodsAndControllers);
         for (const [fieldName, field] of Object.entries(fields)) {
-            const method = 'GET';
+            const method: HttpMethod = 'get';
             const controllers = methodsAndControllers[method] || new Set();
-            const controller = [...controllers].find(controller => fieldName.includes(controller));
+            const controller = [...controllers].find(controller => fieldName.includes(controller) || controller === AllRequestField);
 
             newFields[fieldName] = {
                 ...field,

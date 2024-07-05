@@ -8,13 +8,26 @@ import { dev as options } from "./postgraphileOptions";
 //         message: 'Callback asd',
 //     };
 // });
-requestHandler.registerHandler('GET', async (params, context, info) => {
-    return {
-        success: false,
-        status: 303,
-        message: 'Callback error',
-    };
-});
+
+// requestHandler.registerHandler('get', async (params, context, info) => {
+//     return {
+//         success: false,
+//         status: 303,
+//         message: 'Callback error',
+//     };
+// });
+
+// requestHandler.registerRouteHandler('get', 'state', async (params, context, info) => {
+//     console.log("Handling GET request:", params.method);
+
+//     return {
+//         success: false,
+//         status: 303,
+//         message: 'Callback error',
+//     };
+// });
+
+
 
 // requestHandler.registerRouteHandler('PUT', 'type', async (params, context, info) => {
 //     console.log("Handling GET request:", params.method);
@@ -25,7 +38,7 @@ requestHandler.registerHandler('GET', async (params, context, info) => {
 //         message: 'Callback error',
 //     };
 // });
-// requestHandler.registerRouteHandler('GET', 'state', async (params, context, info) => {
+// requestHandler.registerRouteHandler('GET', 'type', async (params, context, info) => {
 //     console.log("Handling GET request:", params.method);
 
 //     return {

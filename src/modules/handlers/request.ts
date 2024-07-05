@@ -2,6 +2,8 @@ import { type Request, type Response } from 'express';
 
 export type HttpMethod = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'options' | 'head';
 
+export const AllRequestField = 'all';
+
 interface KeyArrayInterface {
     [key: string]: Array<unknown>;
 }
@@ -47,8 +49,9 @@ class RequestHandler {
      * @param {CallableFunction} callback
      * @memberof RequestHandler
      */
-    registerHandler(method: string, callback: CallableFunction) {
-        const key = method.toUpperCase();
+    registerHandler(method: HttpMethod, callback: CallableFunction) {
+        // force lowercase for HTTP method
+        const key = method.toLowerCase();
         if (!this.methodMiddlewares[key]) {
             this.methodMiddlewares[key] = [];
         }
@@ -62,8 +65,8 @@ class RequestHandler {
      * @param {CallableFunction} callback
      * @memberof RequestHandler
      */
-    registerRouteHandler(method: string, controller: string, callback: CallableFunction) {
-        const key = `${method.toUpperCase()}:${controller}`;
+    registerRouteHandler(method: HttpMethod, controller: string, callback: CallableFunction) {
+        const key = `${method.toLowerCase()}:${controller}`;
         if (!this.controllerMiddlewares[key]) {
             this.controllerMiddlewares[key] = [];
         }
@@ -101,17 +104,15 @@ class RequestHandler {
 
     }
 
-    async handleRequest(reqOrArgs: Request, context: any, info: any, method: string, controller: string): Promise<any> {
+    async handleRequest(reqOrArgs: Request, context: any, info: any, method: HttpMethod, controller: string): Promise<any> {
         const normalizedParams = this.normalizeParams(reqOrArgs, context);
         let result = { success: true };
 
-        const methodKey = method.toUpperCase();
-        const controllerKey = controller ? `${methodKey}:${controller}` : null;
-
+        const controllerKey = controller ? `${method}:${controller}` : null;
         const middlewares = [
             ...this.middlewares,
             ...(controllerKey ? (this.controllerMiddlewares[controllerKey] || []) : []),
-            ...(this.methodMiddlewares[methodKey] || [])
+            ...(this.methodMiddlewares[method] || [])
         ];
 
         for (const middleware of middlewares) {
@@ -127,7 +128,7 @@ class RequestHandler {
     }
 
     async handleGetRequest(reqOrArgs: Request, context: any, info: any, controller: string): Promise<any> {
-        return this.handleRequest(reqOrArgs, context, info, 'GET', controller);
+        return this.handleRequest(reqOrArgs, context, info, 'get', controller);
     }
     /**
      *
@@ -138,7 +139,7 @@ class RequestHandler {
      * @memberof RequestHandler
      */
     async handlePostRequest(reqOrArgs: Request, context: any, info: any, controller: string) {
-        return await this.handleRequest(reqOrArgs, context, info, 'POST', controller);
+        return await this.handleRequest(reqOrArgs, context, info, 'post', controller);
     }
 
     /**
@@ -150,7 +151,7 @@ class RequestHandler {
      * @memberof RequestHandler
      */
     async handlePutRequest(reqOrArgs: Request, context: any, info: any, controller: string) {
-        return await this.handleRequest(reqOrArgs, context, info, 'PUT', controller);
+        return await this.handleRequest(reqOrArgs, context, info, 'put', controller);
     }
 
 
@@ -163,7 +164,7 @@ class RequestHandler {
      * @memberof RequestHandler
      */
     async handlePatchRequest(reqOrArgs: Request, context: any, info: any, controller: string) {
-        return await this.handleRequest(reqOrArgs, context, info, 'PATCH', controller);
+        return await this.handleRequest(reqOrArgs, context, info, 'patch', controller);
     }
     /**
      *
@@ -174,7 +175,7 @@ class RequestHandler {
      * @memberof RequestHandler
      */
     async handleDeleteRequest(reqOrArgs: Request, context: any, info: any, controller: string) {
-        return await this.handleRequest(reqOrArgs, context, info, 'DELETE', controller);
+        return await this.handleRequest(reqOrArgs, context, info, 'delete', controller);
     }
     /**
      *
@@ -186,7 +187,7 @@ class RequestHandler {
      * @memberof RequestHandler
      */
     async handleOptionsRequest(reqOrArgs: Request, context: any, info: any, controller: string) {
-        return await this.handleRequest(reqOrArgs, context, info, 'OPTIONS', controller);
+        return await this.handleRequest(reqOrArgs, context, info, 'options', controller);
     }
     /**
      *
@@ -198,12 +199,12 @@ class RequestHandler {
      * @memberof RequestHandler
      */
     async handleHeadRequest(reqOrArgs: Request, context: any, info: any, controller: string) {
-        return await this.handleRequest(reqOrArgs, context, info, 'HEAD', controller);
+        return await this.handleRequest(reqOrArgs, context, info, 'head', controller);
     }
 
 
     hasCallback(method: string, controller = null) {
-        const methodKey = method.toUpperCase();
+        const methodKey = method;
         const controllerKey = `${methodKey}:${controller}`;
 
         return !!(this.methodMiddlewares[methodKey] || this.controllerMiddlewares[controllerKey]);
@@ -212,7 +213,7 @@ class RequestHandler {
     getMethodsAndControllersHavingCallbacks() {
         const methodsAndControllers: KeySetInterface = {};
 
-        // Aggiungi i controller associati alle callback di metodo
+        // Add controllers associated with method callbacks
         for (const key in this.controllerMiddlewares) {
             const [method, controller] = key.split(':');
             if (!methodsAndControllers[method]) {
@@ -221,11 +222,12 @@ class RequestHandler {
             methodsAndControllers[method].add(controller);
         }
 
-        // Aggiungi i metodi senza controller specificato
+        // Add methods without specified controller
         for (const method in this.methodMiddlewares) {
             if (!methodsAndControllers[method]) {
                 methodsAndControllers[method] = new Set();
             }
+            methodsAndControllers[method].add(AllRequestField);
         }
 
         return methodsAndControllers;
