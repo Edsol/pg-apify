@@ -13,7 +13,7 @@
   },
   "scripts": {
     "dev": "bun --env-file=./.env --watch ./example/example.ts",
-    "build": "tsc"
+    "build": "./scripts/build.sh"
   },
   "devDependencies": {
     "@graphile-contrib/pg-simplify-inflector": "^6.1.0",
